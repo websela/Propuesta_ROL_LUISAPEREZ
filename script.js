@@ -4,17 +4,19 @@ const $$ = (s, c = document) => [...c.querySelectorAll(s)];
 /* ===== Paneles apilables (efecto de scroll) ===== */
 const panels = $$('.panel');
 let tops = [];
+/* En celular/tablet los paneles no se apilan: evita los recuadros negros al hacer scroll */
+const lite = matchMedia('(max-width:900px), (hover:none)');
 function layout() {
   let y = 0; tops = [];
   panels.forEach(p => {
     // si el panel es más alto que la pantalla, se queda fijo cuando se ve su final
-    p.style.top = Math.min(0, innerHeight - p.offsetHeight) + 'px';
+    p.style.top = lite.matches ? '' : Math.min(0, innerHeight - p.offsetHeight) + 'px';
     tops.push(y); y += p.offsetHeight;
   });
 }
 const ro = new ResizeObserver(layout);
 panels.forEach(p => ro.observe(p));
-addEventListener('resize', layout); addEventListener('load', layout);
+addEventListener('resize', layout); lite.addEventListener('change', () => { panels.forEach(p => p.style.removeProperty('--p')); layout(); onScroll(); }); addEventListener('load', layout);
 layout();
 
 /* ===== Menú ===== */
@@ -43,7 +45,7 @@ function onScroll() {
     if (t <= 200) cur = p;
     const nx = panels[i + 1];
     const prog = nx ? Math.min(1, Math.max(0, 1 - nx.getBoundingClientRect().top / innerHeight)) : 0;
-    p.style.setProperty('--p', prog.toFixed(3));
+    if (!lite.matches) p.style.setProperty('--p', prog.toFixed(3));
   });
   anchors.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + cur.id));
   tick = false;
@@ -170,8 +172,9 @@ if (cl) {
   let cur = 0, hold = false;
   const goTo = i => {
     const s = sts[i];
-    bot.style.left = (s.offsetLeft + s.offsetWidth / 2 - bot.offsetWidth / 2) + 'px';
-    bot.style.bottom = (cl.clientHeight - s.offsetTop - 6) + 'px';
+    const dx = s.offsetLeft + s.offsetWidth / 2 - bot.offsetWidth / 2;
+    const dy = -(cl.clientHeight - s.offsetTop - 6);
+    bot.style.translate = dx + 'px ' + dy + 'px';
     sts.forEach((x, k) => x.classList.toggle('hit', k === i));
     cur = i;
   };
@@ -232,3 +235,8 @@ $$('[data-teaser]').forEach(b => b.onclick = e => {
      <p class="l" style="--d:4;font-size:.75rem;color:#999">Maqueta ilustrativa del pop-up en la página de Dropi.</p>`);
   }
 });
+
+
+/* ===== Pausar animaciones de las secciones que no se ven (menos carga en celular) ===== */
+const vis = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('off', !e.isIntersecting)), { rootMargin: '150px 0px' });
+panels.forEach(p => vis.observe(p));

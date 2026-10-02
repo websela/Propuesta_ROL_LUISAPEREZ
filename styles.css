@@ -214,8 +214,8 @@ footer b{color:var(--or)}
 .anim .ic{color:var(--or)}
 .anim .lbl{font-weight:700;font-size:.85rem}
 .pg{position:absolute;left:14px;right:14px;bottom:12px;height:5px;border-radius:9px;background:rgba(0,0,0,.1);overflow:hidden;display:block}
-.pg:after{content:"";display:block;height:100%;width:0;background:var(--or);animation:fill 6s linear infinite}
-@keyframes fill{to{width:100%}}
+.pg:after{content:"";display:block;height:100%;width:100%;background:var(--or);transform-origin:0 50%;transform:scaleX(0);animation:fill 6s linear infinite}
+@keyframes fill{to{transform:scaleX(1)}}
 @keyframes rip{from{transform:scale(1);opacity:.8}to{transform:scale(3.2);opacity:0}}
 @keyframes rip2{from{transform:scale(1);opacity:.8}to{transform:scale(1.9);opacity:0}}
 
@@ -243,8 +243,8 @@ footer b{color:var(--or)}
 /* Día 7: barras que crecen */
 .a3{gap:10px;align-content:center;padding-bottom:26px}
 .a3 .bars{display:flex;align-items:flex-end;gap:9px;height:100px}
-.a3 .bars i{width:20px;height:8%;border-radius:7px 7px 0 0;background:linear-gradient(var(--or2),var(--or));animation:grow 4s ease-in-out infinite;animation-delay:calc(var(--k)*.18s)}
-@keyframes grow{0%{height:8%}35%,80%{height:var(--h)}100%{height:8%}}
+.a3 .bars i{width:20px;height:var(--h);border-radius:7px 7px 0 0;background:linear-gradient(var(--or2),var(--or));transform-origin:50% 100%;transform:scaleY(.12);animation:grow 4s ease-in-out infinite;animation-delay:calc(var(--k)*.18s)}
+@keyframes grow{0%{transform:scaleY(.12)}35%,80%{transform:scaleY(1)}100%{transform:scaleY(.12)}}
 
 /* Academy: video, tutorial (rompecabezas) y manual */
 .av{gap:10px;align-content:center;padding-bottom:22px}
@@ -286,7 +286,7 @@ footer b{color:var(--or)}
 .climb{position:relative;height:370px;margin:10px 0 4px}
 .stp{position:absolute;left:calc(var(--i)*12%);bottom:calc(var(--i)*54px);margin:0;white-space:nowrap;background:#fff;color:#111;box-shadow:0 6px 16px rgba(0,0,0,.1)}
 .stp.hit{background:var(--or);color:#fff;border-color:transparent;box-shadow:0 0 0 4px rgba(255,106,0,.3);transform:scale(1.06)}
-.bot{position:absolute;z-index:3;width:84px;left:0;bottom:0;pointer-events:none;filter:drop-shadow(0 8px 10px rgba(0,0,0,.25));transition:left .8s cubic-bezier(.4,0,.2,1),bottom .8s cubic-bezier(.3,1.7,.5,1);animation:bob 1.6s ease-in-out infinite}
+.bot{position:absolute;z-index:3;width:84px;left:0;bottom:0;pointer-events:none;filter:drop-shadow(0 8px 10px rgba(0,0,0,.25));transition:translate .8s cubic-bezier(.4,0,.2,1);will-change:translate;animation:bob 1.6s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(-5px) rotate(2deg)}}
 
 /* Organigrama: el centro que conecta */
@@ -324,3 +324,27 @@ footer b{color:var(--or)}
 .bell{display:inline-block;animation:wig 1.4s infinite}
 
 .avatar img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2}
+
+/* ===== Modo ligero para celular/tablet: sin apilado ni desenfoques (corrige recuadros negros al hacer scroll) ===== */
+@media (max-width:900px),(hover:none){
+ .panel{position:relative!important;top:auto!important;box-shadow:none;min-height:100svh}
+ .wrap{transform:none!important;opacity:1!important}
+ .card,.fc,.btn.gl,.md,.box,.tb,.pillt,nav,.links,.links.open{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+ nav{background:rgba(12,12,12,.94)}
+ .links{background:rgba(12,12,12,.97)}
+ .md{background:rgba(0,0,0,.85)}
+ .card:before{display:none}
+ .shapes i:nth-child(1),.shapes i:nth-child(2),.shapes i:nth-child(3){animation:none}
+ .hero-phone{filter:none}
+ .rv{transform:translateY(18px)}
+}
+@media(max-width:480px){.hub{grid-template-columns:1fr 1.05fr 1fr;gap:10px 6px}.hub h3{font-size:.66rem;letter-spacing:-.02em}.hub .card{padding:10px 4px}}
+
+/* ===== Rendimiento: pausar animaciones de secciones fuera de pantalla ===== */
+.panel.off *,.panel.off *:before,.panel.off *:after{animation-play-state:paused!important}
+@media (max-width:900px),(hover:none){
+ .rv{opacity:1!important;transform:none!important;transition:none!important}
+ .shapes{display:none}
+ .card,.card:hover{transition:none;transform:none}
+ .ev,.why3>div,.pz,.anim{will-change:auto}
+}
